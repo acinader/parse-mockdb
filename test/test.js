@@ -25,6 +25,8 @@ class Store extends Parse.Object {
 }
 Parse.Object.registerSubclass('Store', Store);
 
+class CustomUserSubclass extends Parse.User {}
+
 function createBrandP(name) {
   const brand = new Brand();
   brand.set("name", name);
@@ -47,11 +49,118 @@ function createStoreWithItemP(item) {
   return store.save();
 }
 
+function createUserP(name) {
+  var user = new CustomUserSubclass()
+  user.set('name', name);
+  return user.save();
+}
+
 function itemQueryP(price) {
   const query = new Parse.Query(Item);
   query.equalTo("price", price);
   return query.find();
 }
+
+function behavesLikeParseObjectOnBeforeSave(typeName, ParseObjectOrUserSubclass) {
+
+  context('when object has beforeSave hook registered', function() {
+
+    function beforeSavePromise(request) {
+      var object = request.object;
+      if (object.get("error")) {
+        return Parse.Promise.error("whoah");
+      }
+      object.set('cool', true);
+      return Parse.Promise.as(object);
+    }
+
+    it('runs the hook before saving the model and persists the object', function() {
+      ParseMockDB.registerHook(typeName, 'beforeSave', beforeSavePromise);
+
+      var object = new ParseObjectOrUserSubclass();
+      assert(!object.has('cool'));
+
+      object.save().then(function (savedObject) {
+        assert(savedObject.has('cool'));
+        assert(savedObject.get('cool'));
+
+        new Parse.Query(ParseObjectOrUserSubclass).first().then(function (queriedObject) {
+          assert(queriedObject.has('cool'));
+          assert(queriedObject.get('cool'));
+        });
+      });
+    });
+
+    it('rejects the save if there is a problem', function(done) {
+      ParseMockDB.registerHook(typeName, 'beforeSave', beforeSavePromise);
+
+      var object = new ParseObjectOrUserSubclass({error: true});
+
+      object.save().then(function (savedObject) {
+        throw new Error("should not have saved")
+      }, function(error) {
+        assert.equal(error, "whoah");
+        done();
+      });
+    });
+  });
+
+}
+
+function behavesLikeParseObjectOnBeforeDelete(typeName, ParseObjectOrUserSubclass) {
+
+  context('when object has beforeDelete hook registered', function() {
+
+    var beforeDeleteWasRun;
+
+    beforeEach(function () {
+      beforeDeleteWasRun = false;
+    });
+
+    function beforeDeletePromise(request) {
+      var object = request.object;
+      if (object.get("error")) {
+        return Parse.Promise.error("whoah");
+      }
+      beforeDeleteWasRun = true;
+      return Parse.Promise.as();
+    }
+
+    it('runs the hook before deleting the object', function() {
+      ParseMockDB.registerHook(typeName, 'beforeDelete', beforeDeletePromise);
+
+      new ParseObjectOrUserSubclass().save().done(function (savedParseObjectOrUserSubclass) {
+        return Parse.Object.destroyAll([savedParseObjectOrUserSubclass]);
+      }).done(function () {
+          assert(beforeDeleteWasRun);
+        });
+
+      new Parse.Query(ParseObjectOrUserSubclass).find().done(function (results) {
+        assert.equal(results.length, 0);
+      });
+    });
+
+    it('rejects the delete if there is a problem', function(done) {
+      ParseMockDB.registerHook(typeName, 'beforeDelete', beforeDeletePromise);
+
+      var object = new ParseObjectOrUserSubclass({error: true});
+      object.save().done(function (savedParseObjectOrUserSubclass) {
+        return Parse.Object.destroyAll([savedParseObjectOrUserSubclass]);
+      }).then(function (deletedParseObjectOrUserSubclass) {
+          throw new Error("should not have deleted")
+        }, function(error) {
+          assert.equal(error, "whoah");
+          return new Parse.Query(ParseObjectOrUserSubclass).find();
+        }).done(function(results) {
+          assert.equal(results.length, 1);
+          done();
+        });
+    });
+
+  });
+
+}
+
 
 describe('ParseMock', function(){
   beforeEach(function() {
@@ -60,6 +169,29 @@ describe('ParseMock', function(){
 
   afterEach(function() {
     Parse.MockDB.cleanUp();
+  });
+
+  context('supports Parse.User subclasses', function() {
+
+    it("should save user", function() {
+      return createUserP('Tom').then(function(user) {
+        assert.equal(user.get("name"), 'Tom');
+      });
+    });
+
+    it('should save and find a user', function () {
+      return createUserP('Tom').then(function(user) {
+        const query = new Parse.Query(CustomUserSubclass);
+        query.equalTo("name", 'Tom');
+        return query.first().then(function(user) {
+          assert.equal(user.get('name'), 'Tom');
+        });
+      });
+    });
+
+    behavesLikeParseObjectOnBeforeSave('_User', CustomUserSubclass);
+    behavesLikeParseObjectOnBeforeDelete('_User', CustomUserSubclass);
+
   });
 
   it("should save correctly", function() {
@@ -862,14 +994,24 @@ describe('ParseMock', function(){
       return Parse.Promise.as(brand);
     }
 
+<<<<<<< 676801f521305aeaa676039830357a73058c9f8f
     it('runs the hook before saving the model and persists the object', function() {
+=======
+
+    it('runs the hook before saving the model and persists the object', function(done) {
+>>>>>>> Make the test fail by adding a request object.
       ParseMockDB.registerHook('Brand', 'beforeSave', beforeSavePromise);
 
       const brand = new Brand();
       assert(!brand.has('cool'));
       brand.set('nestedObject', { foo: 3 });
 
+<<<<<<< 676801f521305aeaa676039830357a73058c9f8f
       return brand.save().then(function(savedBrand) {
+=======
+
+      brand.save().then(function(savedBrand) {
+>>>>>>> Make the test fail by adding a request object.
         assert(savedBrand.has('cool'), 'saved brand doesn\'t have cool');
         assert(savedBrand.get('cool'));
         assert.equal(savedBrand.get('nestedObject').foo, 3);
@@ -886,8 +1028,14 @@ describe('ParseMock', function(){
 
       const brand = new Brand({error: true});
 
+<<<<<<< 676801f521305aeaa676039830357a73058c9f8f
       return brand.save().then(function(savedBrand) {
         assert.fail(null, null, "should not have saved");
+=======
+
+      brand.save().then(function(savedBrand) {
+        throw new Error("should not have saved")
+>>>>>>> Make the test fail by adding a request object.
       }, function(error) {
         assert.equal(error, "whoah");
       });
@@ -944,8 +1092,13 @@ describe('ParseMock', function(){
     });
   });
 
+<<<<<<< 676801f521305aeaa676039830357a73058c9f8f
   it('successfully uses containsAll query', function() {
     return Parse.Promise.when(createItemP(30), createItemP(20)).then((item1, item2) => {
+=======
+  it('successfully uses containsAll query', function(done) {
+    Parse.Promise.when([createItemP(30), createItemP(20)]).then((item1, item2) => {
+>>>>>>> Make the test fail by adding a request object.
       const store = new Store({
         items: [item1.toPointer(), item2.toPointer()],
       });
