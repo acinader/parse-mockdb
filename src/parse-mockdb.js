@@ -103,14 +103,14 @@ function runHook(className, hookType, data) {
 
     // TODO Stub out Parse.Cloud.useMasterKey() so that we can report the correct 'master'
     // value here.
-    var beforeSaveRequest = {
+    var beforeSaveOrBeforeDeleteRequestObject = {
       installationId: 'parse-mockdb',
       master: false,
       object: model,
       user: "ParseMockDB doesn't define request.user."
     };
 
-    return hook(beforeSaveRequest).then((result) => {
+    return hook(beforeSaveOrBeforeDeleteRequestObject).then((result) => {
       debugPrint('HOOK', result);
       return Parse.Promise.as(result.toJSON());
     });
