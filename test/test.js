@@ -814,8 +814,7 @@ describe('ParseMock', function(){
         assert(savedBrand.has('cool'));
         assert(savedBrand.get('cool'));
 
-        var q = new Parse.Query(Brand);
-        q.first().then(function (queriedBrand) {
+        new Parse.Query(Brand).first().then(function (queriedBrand) {
           assert(queriedBrand.has('cool'));
           assert(queriedBrand.get('cool'));
         });
