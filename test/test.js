@@ -833,8 +833,8 @@ describe('ParseMock', function(){
         assert.equal(error, "whoah");
         done();
       });
-    })
-  })
+    });
+  });
 
   context('when object has beforeDelete hook registered', function() {
 
