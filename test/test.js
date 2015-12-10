@@ -862,9 +862,8 @@ describe('ParseMock', function(){
         assert(beforeDeleteWasRun);
       });
 
-      var q = new Parse.Query(Brand);
-      q.find().done(results => {
-        assert(results.length === 0);
+      new Parse.Query(Brand).find().done(results => {
+        assert.equal(results.length, 0);
       });
     });
 
@@ -878,6 +877,10 @@ describe('ParseMock', function(){
         throw new Error("should not have deleted")
       }, error => {
         assert.equal(error, "whoah");
+
+        return new Parse.Query(Brand).find();
+      }).done(results => {
+        assert.equal(results.length, 1);
         done();
       });
     });
