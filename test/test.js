@@ -862,7 +862,10 @@ describe('ParseMock', function(){
         assert(beforeDeleteWasRun);
       });
 
-      // TODO Assert that no brands should exist in the backend.
+      var q = new Parse.Query(Brand);
+      q.find().done(results => {
+        assert(results.length === 0);
+      });
     });
 
     it('rejects the delete if there is a problem', function(done) {
