@@ -856,8 +856,7 @@ describe('ParseMock', function(){
     it('runs the hook before deleting the object', function() {
       ParseMockDB.registerHook('Brand', 'beforeDelete', beforeDeletePromise);
 
-      var brand = new Brand();
-      brand.save().done(function (savedBrand) {
+      createBrandP().done(function (savedBrand) {
         return Parse.Object.destroyAll([savedBrand]);
       }).done(function () {
         assert(beforeDeleteWasRun);
