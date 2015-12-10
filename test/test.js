@@ -876,7 +876,6 @@ describe('ParseMock', function(){
         throw new Error("should not have deleted")
       }, function(error) {
         assert.equal(error, "whoah");
-
         return new Parse.Query(Brand).find();
       }).done(function(results) {
         assert.equal(results.length, 1);
