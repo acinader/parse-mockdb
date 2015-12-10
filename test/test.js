@@ -870,9 +870,10 @@ describe('ParseMock', function(){
       ParseMockDB.registerHook('Brand', 'beforeDelete', beforeDeletePromise);
 
       var brand = new Brand({error: true});
-
-      brand.save().then(savedBrand => {
-        throw new Error("should not have saved")
+      brand.save().done(function (savedBrand) {
+        return Parse.Object.destroyAll([savedBrand]);
+      }).then(deletedBrand => {
+        throw new Error("should not have deleted")
       }, error => {
         assert.equal(error, "whoah");
         done();
