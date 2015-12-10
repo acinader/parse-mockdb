@@ -836,6 +836,50 @@ describe('ParseMock', function(){
     })
   })
 
+  context('when object has beforeDelete hook registered', function() {
+
+    var beforeDeleteWasRun;
+
+    beforeEach(function () {
+      beforeDeleteWasRun = false;
+    });
+
+    function beforeDeletePromise(request) {
+      var brand = request.object;
+      if (brand.get("error")) {
+        return Parse.Promise.error("whoah");
+      }
+      return Parse.Promise.as(brand);
+    }
+
+    it('runs the hook before deleting the object', function() {
+      ParseMockDB.registerHook('Brand', 'beforeDelete', beforeDeletePromise);
+
+      var brand = new Brand();
+      brand.save().done(function (savedBrand) {
+        return Parse.Object.destroyAll([savedBrand]);
+      }).done(function () {
+        assert(beforeDeleteWasRun);
+      });
+
+      // TODO Assert that no brands should exist in the backend.
+    });
+
+    it('rejects the delete if there is a problem', function(done) {
+      ParseMockDB.registerHook('Brand', 'beforeDelete', beforeDeletePromise);
+
+      var brand = new Brand({error: true});
+
+      brand.save().then(savedBrand => {
+        throw new Error("should not have saved")
+      }, error => {
+        assert.equal(error, "whoah");
+        done();
+      });
+    });
+
+  });
+
   it('successfully uses containsAll query', function(done) {
     Parse.Promise.when([createItemP(30), createItemP(20)]).then((item1, item2) => {
       const store = new Store({
