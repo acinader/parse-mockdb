@@ -810,12 +810,12 @@ describe('ParseMock', function(){
       var brand = new Brand();
       assert(!brand.has('cool'));
 
-      brand.save().then(savedBrand => {
+      brand.save().then(function (savedBrand) {
         assert(savedBrand.has('cool'));
         assert(savedBrand.get('cool'));
 
         var q = new Parse.Query(Brand);
-        q.first().then(queriedBrand => {
+        q.first().then(function (queriedBrand) {
           assert(queriedBrand.has('cool'));
           assert(queriedBrand.get('cool'));
         });
@@ -827,9 +827,9 @@ describe('ParseMock', function(){
 
       var brand = new Brand({error: true});
 
-      brand.save().then(savedBrand => {
+      brand.save().then(function (savedBrand) {
         throw new Error("should not have saved")
-      }, error => {
+      }, function(error) {
         assert.equal(error, "whoah");
         done();
       });
@@ -862,7 +862,7 @@ describe('ParseMock', function(){
         assert(beforeDeleteWasRun);
       });
 
-      new Parse.Query(Brand).find().done(results => {
+      new Parse.Query(Brand).find().done(function (results) {
         assert.equal(results.length, 0);
       });
     });
@@ -873,13 +873,13 @@ describe('ParseMock', function(){
       var brand = new Brand({error: true});
       brand.save().done(function (savedBrand) {
         return Parse.Object.destroyAll([savedBrand]);
-      }).then(deletedBrand => {
+      }).then(function (deletedBrand) {
         throw new Error("should not have deleted")
-      }, error => {
+      }, function(error) {
         assert.equal(error, "whoah");
 
         return new Parse.Query(Brand).find();
-      }).done(results => {
+      }).done(function(results) {
         assert.equal(results.length, 1);
         done();
       });
