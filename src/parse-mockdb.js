@@ -310,29 +310,15 @@ const SPECIAL_CLASS_NAMES = {
 
 function handleRequest(method, path, body) {
   const explodedPath = normalizePath(path).split('/');
+  const start = explodedPath.shift();
+  const className = start === 'classes' ? explodedPath.shift() : SPECIAL_CLASS_NAMES[start];
 
-  var request;
-  switch(explodedPath[0]) {
-    case 'users': {
-      request = {
-        method: method,
-        className: '_User',
-        data: body,
-        objectId: explodedPath[1],
-      };
-      break;
-    }
-    case 'classes':
-    default: {
-      request = {
-        method: method,
-        className: explodedPath[1],
-        data: body,
-        objectId: explodedPath[2],
-      };
-    }
-  }
-
+  const request = {
+    method: method,
+    className,
+    data: body,
+    objectId: explodedPath.shift(),
+  };
   return HANDLERS[method](request);
 }
 
