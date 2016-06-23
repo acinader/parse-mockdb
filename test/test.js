@@ -882,22 +882,25 @@ describe('ParseMock', function(){
       return Parse.Promise.as(brand);
     }
 
-    it('runs the hook before saving the model and persists the object', function() {
+    it('runs the hook before saving the model and persists the object', function (done) {
       ParseMockDB.registerHook('Brand', 'beforeSave', beforeSavePromise);
 
       var brand = new Brand();
       assert(!brand.has('cool'));
+      brand.set('nestedObject', { foo: 3 });
 
       brand.save().then(function (savedBrand) {
-        assert(savedBrand.has('cool'));
+        assert(savedBrand.has('cool'), 'saved brand doesn\'t have cool');
         assert(savedBrand.get('cool'));
-
+        assert.equal(savedBrand.get('nestedObject').foo, 3);
         new Parse.Query(Brand).first().then(function (queriedBrand) {
           assert(queriedBrand.has('cool'));
           assert(queriedBrand.get('cool'));
+          assert.equal(savedBrand.get('nestedObject').foo, 3);
+          done();
         });
       });
-    })
+    });
 
     it('rejects the save if there is a problem', function(done) {
       ParseMockDB.registerHook('Brand', 'beforeSave', beforeSavePromise);
@@ -930,17 +933,20 @@ describe('ParseMock', function(){
       return Parse.Promise.as();
     }
 
-    it('runs the hook before deleting the object', function() {
+    it('runs the hook before deleting the object', function (done) {
       ParseMockDB.registerHook('Brand', 'beforeDelete', beforeDeletePromise);
+      const promises = [];
 
-      createBrandP().done(function (savedBrand) {
+      promises.push(createBrandP().then(function (savedBrand) {
         return Parse.Object.destroyAll([savedBrand]);
-      }).done(function () {
-        assert(beforeDeleteWasRun);
-      });
+      }));
 
-      new Parse.Query(Brand).find().done(function (results) {
-        assert.equal(results.length, 0);
+      promises.push(new Parse.Query(Brand).find());
+
+      Parse.Promise.when(promises).then(function (results) {
+        assert(results[0]);
+        assert.equal(results[1].length, 0);
+        done();
       });
     });
 
