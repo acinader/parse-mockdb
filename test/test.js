@@ -512,12 +512,20 @@ describe('ParseMock', function(){
     });
   });
 
-  it("should not match an incorrect equalTo query on price", function(done) {
-    createItemP(30).then(function(item) {
-      itemQueryP(20).then(function(results) {
+  it.only("should not match an incorrect equalTo query on price", function (done) {
+    // break the test so it should fail
+    createItemP(20).then(function(item) {
+      return itemQueryP(20).then(function (results) {
         assert.equal(results.length, 0);
+        console.log('never get here!');
         done();
       });
+    }).always(x => {
+      assert(x.name == 'AssertionError');
+      // the assert fail was swallowed!
+      // and why is it run twice!?
+      // assert.fail(x); // and where does this excption go???
+      done(); // if the above line is uncommented, this never gets called.
     });
   });
 
