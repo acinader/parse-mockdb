@@ -101,7 +101,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should save and find an item', function (done) {
+  it('should save and find an item', function(done) {
     var item = new Item();
     item.set("price", 30);
     item.save().then(function(item) {
@@ -126,7 +126,7 @@ describe('ParseMock', function(){
     })
   })
 
-  it('should support increment', function (done) {
+  it('should support increment', function(done) {
     createItemP(30).then(function(item) {
       item.increment("price", 5);
       return item.save();
@@ -136,7 +136,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should support negative increment', function (done) {
+  it('should support negative increment', function(done) {
     createItemP(30).then(function(item) {
       item.increment("price", -5);
       return item.save();
@@ -146,7 +146,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should support unset', function (done) {
+  it('should support unset', function(done) {
     createItemP(30).then(function(item) {
       item.unset("price");
       return item.save();
@@ -156,7 +156,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should support add', function (done) {
+  it('should support add', function(done) {
     createItemP(30).then(function(item) {
       item.add("languages", "JS");
       return item.save();
@@ -166,7 +166,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should support addUnique', function (done) {
+  it('should support addUnique', function(done) {
     createItemP(30).then(function(item) {
       item.add("languages", "JS");
       item.add("languages", "Ruby")
@@ -181,7 +181,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should support remove', function (done) {
+  it('should support remove', function(done) {
     createItemP(30).then(function(item) {
       item.add("languages", "JS");
       item.add("languages", "JS");
@@ -197,7 +197,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should saveAll and find 2 items', function (done) {
+  it('should saveAll and find 2 items', function(done) {
     var item = new Item();
     item.set("price", 30);
 
@@ -216,7 +216,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should find an item matching an or query', function (done) {
+  it('should find an item matching an or query', function(done) {
     var Item = Parse.Object.extend("Item");
     var item = new Item();
     item.set("price", 30);
@@ -235,7 +235,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should not find any items if they do not match an or query', function (done) {
+  it('should not find any items if they do not match an or query', function(done) {
     var Item = Parse.Object.extend("Item");
     var item = new Item();
     item.set("price", 30);
@@ -254,7 +254,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should save 2 items and get one for a first() query', function (done) {
+  it('should save 2 items and get one for a first() query', function(done) {
     Parse.Promise.when(createItemP(30), createItemP(20)).then(function(item1, item2) {
       var query = new Parse.Query(Item);
       return query.first().then(function(item) {
@@ -685,7 +685,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should find items not filtered by a notContainedIn', function (done) {
+  it('should find items not filtered by a notContainedIn', function(done) {
     createItemP(30).then(function(item) {
       var query = new Parse.Query(Item);
       query.equalTo("price", 30);
@@ -697,7 +697,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should find not items filtered by a notContainedIn', function (done) {
+  it('should find not items filtered by a notContainedIn', function(done) {
     createItemP(30).then(function(item) {
       var query = new Parse.Query(Item);
       query.equalTo("price", 30);
@@ -709,7 +709,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should handle a lessThan query', function (done) {
+  it('should handle a lessThan query', function(done) {
     createItemP(30).then(function(item) {
       var query = new Parse.Query(Item);
       query.lessThan("createdAt", new Date("2024-01-01T23:28:56.782Z"));
@@ -725,7 +725,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should handle a lessThanOrEqualTo query', function (done) {
+  it('should handle a lessThanOrEqualTo query', function(done) {
     createItemP(30).then(function(item) {
       var query = new Parse.Query(Item);
       query.lessThanOrEqualTo("price", 30);
@@ -740,7 +740,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should handle a greaterThan query', function (done) {
+  it('should handle a greaterThan query', function(done) {
     createItemP(30).then(function(item) {
       var query = new Parse.Query(Item);
       query.greaterThan("price", 20);
@@ -755,7 +755,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should handle a greaterThanOrEqualTo query', function (done) {
+  it('should handle a greaterThanOrEqualTo query', function(done) {
     createItemP(30).then(function(item) {
       var query = new Parse.Query(Item);
       query.greaterThanOrEqualTo("price", 30);
@@ -808,7 +808,7 @@ describe('ParseMock', function(){
     })
   })
 
-  it('should correctly count items in a matchesQuery', function (done) {
+  it('should correctly count items in a matchesQuery', function(done) {
     createBrandP("Acme").then(function(brand) {
       createItemP(30, brand).then(function(item) {
         createStoreWithItemP(item).then(function(store) {
@@ -826,7 +826,7 @@ describe('ParseMock', function(){
     });
   });
 
-  it('should skip and limit items appropriately', function (done) {
+  it('should skip and limit items appropriately', function(done) {
     createBrandP("Acme").then(function(brand) {
       createBrandP("Acme 2").then(function(brand2) {
         var brandQuery = new Parse.Query(Brand);
@@ -849,7 +849,7 @@ describe('ParseMock', function(){
   // See github issue: https://github.com/ParsePlatform/Parse-SDK-JS/issues/89
   // and uncomment, delete or rewrite when resolved
 /*
- *  it('should deep save and update nested objects', function (done) {
+ *  it('should deep save and update nested objects', function(done) {
  *    var brand = new Brand();
  *    brand.set("name", "Acme");
  *    brand.set("country", "US");
@@ -882,18 +882,18 @@ describe('ParseMock', function(){
       return Parse.Promise.as(brand);
     }
 
-    it('runs the hook before saving the model and persists the object', function (done) {
+    it('runs the hook before saving the model and persists the object', function(done) {
       ParseMockDB.registerHook('Brand', 'beforeSave', beforeSavePromise);
 
       var brand = new Brand();
       assert(!brand.has('cool'));
       brand.set('nestedObject', { foo: 3 });
 
-      brand.save().then(function (savedBrand) {
+      brand.save().then(function(savedBrand) {
         assert(savedBrand.has('cool'), 'saved brand doesn\'t have cool');
         assert(savedBrand.get('cool'));
         assert.equal(savedBrand.get('nestedObject').foo, 3);
-        new Parse.Query(Brand).first().then(function (queriedBrand) {
+        new Parse.Query(Brand).first().then(function(queriedBrand) {
           assert(queriedBrand.has('cool'));
           assert(queriedBrand.get('cool'));
           assert.equal(savedBrand.get('nestedObject').foo, 3);
@@ -907,7 +907,7 @@ describe('ParseMock', function(){
 
       var brand = new Brand({error: true});
 
-      brand.save().then(function (savedBrand) {
+      brand.save().then(function(savedBrand) {
         throw new Error("should not have saved")
       }, function(error) {
         assert.equal(error, "whoah");
@@ -920,7 +920,7 @@ describe('ParseMock', function(){
 
     var beforeDeleteWasRun;
 
-    beforeEach(function () {
+    beforeEach(function() {
       beforeDeleteWasRun = false;
     });
 
@@ -933,17 +933,17 @@ describe('ParseMock', function(){
       return Parse.Promise.as();
     }
 
-    it('runs the hook before deleting the object', function (done) {
+    it('runs the hook before deleting the object', function(done) {
       ParseMockDB.registerHook('Brand', 'beforeDelete', beforeDeletePromise);
       const promises = [];
 
-      promises.push(createBrandP().then(function (savedBrand) {
+      promises.push(createBrandP().then(function(savedBrand) {
         return Parse.Object.destroyAll([savedBrand]);
       }));
 
       promises.push(new Parse.Query(Brand).find());
 
-      Parse.Promise.when(promises).then(function (results) {
+      Parse.Promise.when(promises).then(function(results) {
         assert(results[0]);
         assert.equal(results[1].length, 0);
         done();
@@ -954,9 +954,9 @@ describe('ParseMock', function(){
       ParseMockDB.registerHook('Brand', 'beforeDelete', beforeDeletePromise);
 
       var brand = new Brand({error: true});
-      brand.save().done(function (savedBrand) {
+      brand.save().done(function(savedBrand) {
         return Parse.Object.destroyAll([savedBrand]);
-      }).then(function (deletedBrand) {
+      }).then(function(deletedBrand) {
         throw new Error("should not have deleted")
       }, function(error) {
         assert.equal(error, "whoah");
@@ -1098,5 +1098,4 @@ describe('ParseMock', function(){
       done();
     });
   })
-
 });
