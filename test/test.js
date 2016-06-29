@@ -716,8 +716,8 @@ describe('ParseMock', function(){
       storeQuery.matchesKeyInQuery("state", "state", itemQuery);
       return Parse.Promise.when(storeQuery.find(), Parse.Promise.as(store));
     }).then(function(storeMatches, store) {
-      assert(storeMatches.length == 1);
-      assert(storeMatches[0].id == store.id);
+      assert.equal(storeMatches.length, 1);
+      assert.equal(storeMatches[0].id, store.id);
     });
   });
 
@@ -727,7 +727,7 @@ describe('ParseMock', function(){
       query.equalTo("price", 30);
       query.notContainedIn("objectId", [234]);
       query.find().then(function(items) {
-        assert(items.length == 1);
+        assert.equal(items.length, 1);
         done();
       });
     });
@@ -739,7 +739,7 @@ describe('ParseMock', function(){
       query.equalTo("price", 30);
       query.notContainedIn("objectId", [item.id]);
       query.find().then(function(items) {
-        assert(items.length == 0);
+        assert.equal(items.length, 0);
         done();
       });
     });
@@ -750,11 +750,11 @@ describe('ParseMock', function(){
       const query = new Parse.Query(Item);
       query.lessThan("createdAt", new Date("2024-01-01T23:28:56.782Z"));
       query.find().then(function(items) {
-        assert(items.length == 1);
+        assert.equal(items.length, 1);
         const newQuery = new Parse.Query(Item);
         newQuery.greaterThan("createdAt", new Date());
         newQuery.find().then(function(moreItems) {
-          assert(moreItems.length === 0);
+          assert.equal(moreItems.length, 0);
           done();
         });
       });
@@ -766,10 +766,10 @@ describe('ParseMock', function(){
       const query = new Parse.Query(Item);
       query.lessThanOrEqualTo("price", 30);
       query.find().then(function(items) {
-        assert(items.length == 1);
+        assert.equal(items.length, 1);
         query.lessThanOrEqualTo("price", 20);
         query.find().then(function(moreItems) {
-          assert(moreItems.length === 0);
+          assert.equal(moreItems.length, 0);
           done();
         });
       });
@@ -781,10 +781,10 @@ describe('ParseMock', function(){
       const query = new Parse.Query(Item);
       query.greaterThan("price", 20);
       query.find().then(function(items) {
-        assert(items.length == 1);
+        assert.equal(items.length, 1);
         query.greaterThan("price", 50);
         query.find().then(function(moreItems) {
-          assert(moreItems.length === 0);
+          assert.equal(moreItems.length, 0);
           done();
         });
       });
@@ -796,10 +796,10 @@ describe('ParseMock', function(){
       const query = new Parse.Query(Item);
       query.greaterThanOrEqualTo("price", 30);
       query.find().then(function(items) {
-        assert(items.length == 1);
+        assert.equal(items.length, 1);
         query.greaterThanOrEqualTo("price", 50);
         query.find().then(function(moreItems) {
-          assert(moreItems.length === 0);
+          assert.equal(moreItems.length, 0);
           done();
         });
       });
@@ -812,10 +812,10 @@ describe('ParseMock', function(){
       query.greaterThan("price", 20);
       query.lessThan("price", 40);
       query.find().then(function(items) {
-        assert(items.length == 1);
+        assert.equal(items.length, 1);
         query.greaterThan("price", 30);
         query.find().then(function(moreItems) {
-          assert(moreItems.length === 0);
+          assert.equal(moreItems.length, 0);
           done();
         });
       });
