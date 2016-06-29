@@ -291,7 +291,7 @@ describe('ParseMock', function(){
   it('should support addUnique', function() {
     return createItemP(30).then(function(item) {
       item.add("languages", "JS");
-      item.add("languages", "Ruby")
+      item.add("languages", "Ruby");
       return item.save();
     }).then(function(item) {
       assert.deepEqual(item.get("languages"), ["JS", "Ruby"]);
@@ -306,7 +306,7 @@ describe('ParseMock', function(){
     return createItemP(30).then(function(item) {
       item.add("languages", "JS");
       item.add("languages", "JS");
-      item.add("languages", "Ruby")
+      item.add("languages", "Ruby");
       return item.save();
     }).then(function(item) {
       assert.deepEqual(item.get("languages"), ["JS", "JS", "Ruby"]);
@@ -519,7 +519,7 @@ describe('ParseMock', function(){
     let savedItem;
     return new Item().save({price: 30}).then(function(item1) {
       savedItem = item1;
-      return Item.createWithoutData(item1.id).fetch()
+      return Item.createWithoutData(item1.id).fetch();
     }).then(function(fetched) {
       assert.equal(fetched.id, savedItem.id);
       assert.equal(fetched.get('price'), 30);
@@ -1064,7 +1064,7 @@ describe('ParseMock', function(){
       const relation = store2.relation('items');
       relation.add(paperTowels);
       relation.add(toothPaste);
-      return store2.save()
+      return store2.save();
     }).then(() => {
       const query = new Parse.Query(Store);
       query.equalTo('items', Item.createWithoutData(tpId));
@@ -1078,7 +1078,7 @@ describe('ParseMock', function(){
   it('should handle the User class', function() {
     const user = new Parse.User({name: "Turtle"});
     return user.save().then((savedUser) => {
-      return (new Parse.Query(Parse.User).find())
+      return (new Parse.Query(Parse.User).find());
     }).then((foundUsers) => {
       assert.equal(foundUsers.length, 1);
       assert.equal(foundUsers[0].get('name'), "Turtle");
@@ -1090,7 +1090,7 @@ describe('ParseMock', function(){
     roleACL.setPublicReadAccess(true);
     const role = new Parse.Role("Turtle", roleACL);
     return role.save().then((savedRole) => {
-      return (new Parse.Query(Parse.Role).find())
+      return (new Parse.Query(Parse.Role).find());
     }).then((foundRoles) => {
       assert.equal(foundRoles.length, 1);
       assert.equal(foundRoles[0].get('name'), "Turtle");
@@ -1098,7 +1098,7 @@ describe('ParseMock', function(){
   });
 
   it('should handle redirectClassNameForKey', function() {
-    const user = new Parse.User({name: "T Rutlidge"})
+    const user = new Parse.User({name: "T Rutlidge"});
     return user.save().then((savedUser) => {
       const roleACL = new Parse.ACL();
       roleACL.setPublicReadAccess(true);
