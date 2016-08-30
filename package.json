@@ -7,7 +7,7 @@
     "node": ">=5.0.0"
   },
   "scripts": {
-    "test": "mocha ./test/test",
+    "test": "npm run lint && mocha ./test/test",
     "lint": "eslint src/** test/**"
   },
   "repository": {

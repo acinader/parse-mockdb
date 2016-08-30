@@ -10,14 +10,14 @@ const QUOTE_REGEXP = /(\\Q|\\E)/g;
 
 const CONFIG = {
   DEBUG: process.env.DEBUG_DB
-}
+};
 
 const HANDLERS = {
   GET: handleGetRequest,
   POST: handlePostRequest,
   PUT: handlePutRequest,
   DELETE: handleDeleteRequest,
-}
+};
 
 var db = {};
 var hooks = {};
@@ -147,7 +147,7 @@ function extractOps(data) {
   return ops;
 }
 
-// Destructive. Applys all the update `ops` to `data`.
+// Destructive. Applies all the update `ops` to `data`.
 // Throws on unknown update operator.
 function applyOps(data, ops, className) {
   debugPrint('OPS', ops);
@@ -156,7 +156,7 @@ function applyOps(data, ops, className) {
     const operator = value["__op"];
 
     if (operator in UPDATE_OPERATORS) {
-      UPDATE_OPERATORS[operator].bind(data)(key, value, className)
+      UPDATE_OPERATORS[operator].bind(data)(key, value, className);
     } else {
       throw new Error("Unknown update operator:" + key);
     }
@@ -174,7 +174,7 @@ function ensureArray(object, key) {
     object[key] = new Array();
   }
   if (!Array.isArray(object[key])) {
-    throw new Error("Can't perform array operaton on non-array field");
+    throw new Error("Can't perform array operation on non-array field");
   }
 }
 
@@ -198,7 +198,7 @@ const UPDATE_OPERATORS = {
     ensureArray(this, key);
     value.objects.forEach(object => {
       this[key].push(object);
-    })
+    });
   },
   AddUnique: function(key, value) {
     ensureArray(this, key);
@@ -231,9 +231,9 @@ const UPDATE_OPERATORS = {
     var relation = this[key];
     value.objects.forEach(item => {
       _.remove(relation, pointer => objectsAreEqual(pointer, item));
-    })
+    });
   }
-}
+};
 
 function debugPrint(prefix, object) {
   if (CONFIG.DEBUG) {
@@ -243,7 +243,7 @@ function debugPrint(prefix, object) {
 
 function getCollection(collection) {
   if (!db[collection]) {
-    db[collection] = {}
+    db[collection] = {};
   }
   return db[collection];
 }
@@ -259,10 +259,10 @@ var MockRESTController = {
   request: function(method, path, data, options) {
     var result;
     if (path === "batch") {
-      debugPrint('BATCH', {method, path, data, options});
+      debugPrint('BATCH', { method, path, data, options });
       result = handleBatchRequest(method, path, data);
     } else {
-      debugPrint('REQUEST', {method, path, data, options});
+      debugPrint('REQUEST', { method, path, data, options });
       result = handleRequest(method, path, data);
     }
 
@@ -276,7 +276,7 @@ var MockRESTController = {
   ajax: function() {
     /* no-op */
   }
-}
+};
 
 /**
  * Batch requests have the following form: {
@@ -293,12 +293,12 @@ function handleBatchRequest(method, path, data) {
     var body = request.body;
     return handleRequest(method, path, body).then(result => {
       return Parse.Promise.as({ success: result.response });
-    })
-  })
+    });
+  });
 
   return Parse.Promise.when.apply(null, getResults).then(function(results) {
     return respond(200, arguments);
-  })
+  });
 }
 
 // Batch requests have the API version included in path
@@ -310,7 +310,7 @@ const SPECIAL_CLASS_NAMES = {
   roles: '_Role',
   users: '_User',
   push: '_Push'
-}
+};
 
 function handleRequest(method, path, body) {
   const explodedPath = normalizePath(path).split('/');
@@ -354,7 +354,7 @@ function handleGetRequest(request) {
   }
 
   const data = request.data;
-  indirect = data.redirectClassNameForKey
+  indirect = data.redirectClassNameForKey;
 
   var matches = recursivelyMatch(className, data.where);
 
@@ -379,7 +379,7 @@ function handleGetRequest(request) {
     if (match.updatedAt) {
       match.updatedAt = match.updatedAt.toJSON();
     }
-  })
+  });
 
   var limit = data.limit || DEFAULT_LIMIT;
   var startIndex = data.skip || 0;
@@ -471,7 +471,7 @@ function makePointer(className, id) {
     __type: "Pointer",
     className: className,
     objectId: id,
-  }
+  };
 }
 
 function isOp(object) {
@@ -513,7 +513,7 @@ function queryMatchesAfterIncluding(matches, includeClause) {
  * with fully fetched objects
  */
 function includePaths(object, pathsRemaining) {
-  debugPrint('INCLUDE', {object, pathsRemaining})
+  debugPrint('INCLUDE', {object, pathsRemaining});
   const path = pathsRemaining.shift();
   const target = object && object[path];
 
@@ -523,7 +523,7 @@ function includePaths(object, pathsRemaining) {
         const fetched = fetchObjectByPointer(pointer);
         includePaths(fetched, _.cloneDeep(pathsRemaining));
         return fetched;
-      })
+      });
     } else {
       if (object[path].__type == 'Pointer') {
         object[path] = fetchObjectByPointer(target);
@@ -574,7 +574,7 @@ function queryFilter(where) {
       return _.reduce(where["$or"], function(result, subclause) {
         return result || queryFilter(subclause)(object);
       }, false);
-    }
+    };
   }
 
   return function(object) {
@@ -666,7 +666,7 @@ const QUERY_OPERATORS = {
   },
   '$regex': function(value) {
     const regex = _.clone(value).replace(QUOTE_REGEXP, "");
-    return (new RegExp(regex).test(this))
+    return (new RegExp(regex).test(this));
   },
   '$select': function(value) {
     var foreignKey = value.key;
@@ -707,10 +707,10 @@ const QUERY_OPERATORS = {
       return objectsAreEqual(relations, this);
     }
   },
-}
+};
 
 /**
- * Deserializes an encoded query parameter if necessary
+ * Deserialize an encoded query parameter if necessary
  */
 function deserializeQueryParam(param) {
   if (!!param && (typeof param === "object")) {
