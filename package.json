@@ -28,6 +28,7 @@
   "homepage": "https://github.com/HustleInc/parse-mockdb",
   "dependencies": {
     "lodash": "^4.0.0",
+    "parse": ">=1.6.0",
     "parse-shim": "^1.0.6"
   },
   "devDependencies": {
@@ -37,9 +38,6 @@
     "eslint-plugin-jsx-a11y": "^2.2.0",
     "eslint-plugin-react": "^6.2.0",
     "mocha": "^2.2.5"
-  },
-  "peerDependencies": {
-    "parse": ">=1.6.0"
   },
   "directories": {
     "test": "test"
