@@ -286,53 +286,33 @@ function recursivelyMatch(className, where) {
  *    value - operator value, i.e. the number 30 in `age: {$lt: 30}`
  */
 const QUERY_OPERATORS = {
-  /* eslint-disable object-shorthand, func-names */
-  $exists: function(value) {
-    return !!this === value;
-  },
-  $in: function(values) {
-    return _.some(values, value => objectsAreEqual(this, value));
-  },
-  $nin: function(values) {
-    return _.every(values, value => !objectsAreEqual(this, value));
-  },
-  $eq: function(value) {
-    return objectsAreEqual(this, value);
-  },
-  $ne: function(value) {
-    return !objectsAreEqual(this, value);
-  },
-  $lt: function(value) {
-    return this < value;
-  },
-  $lte: function(value) {
-    return this <= value;
-  },
-  $gt: function(value) {
-    return this > value;
-  },
-  $gte: function(value) {
-    return this >= value;
-  },
-  $regex: function(value) {
+  $exists: (operand, value) => !!operand === value,
+  $in: (operand, values) => _.some(values, value => objectsAreEqual(operand, value)),
+  $nin: (operand, values) => _.every(values, value => !objectsAreEqual(operand, value)),
+  $eq: (operand, value) => objectsAreEqual(operand, value),
+  $ne: (operand, value) => !objectsAreEqual(operand, value),
+  $lt: (operand, value) => operand < value,
+  $lte: (operand, value) => operand <= value,
+  $gt: (operand, value) => operand > value,
+  $gte: (operand, value) => operand >= value,
+  $regex: (operand, value) => {
     const regex = _.clone(value).replace(QUOTE_REGEXP, '');
-    return (new RegExp(regex).test(this));
+    return (new RegExp(regex).test(operand));
   },
-  $select: function(value) {
+  $select: (operand, value) => {
     const foreignKey = value.key;
     const query = value.query;
     const matches = recursivelyMatch(query.className, query.where);
-    const objectMatches = _.filter(matches, match => match[foreignKey] === this);
+    const objectMatches = _.filter(matches, match => match[foreignKey] === operand);
     return objectMatches.length;
   },
-  $inQuery: function(query) {
+  $inQuery: (operand, query) => {
     const matches = recursivelyMatch(query.className, query.where);
-    return _.find(matches, match => this && match.objectId === this.objectId);
+    return _.find(matches, match => operand && match.objectId === operand.objectId);
   },
-  $all: function(value) {
-    return _.every(value, obj1 => _.some(this, obj2 => objectsAreEqual(obj1, obj2)));
-  },
-  $relatedTo: function(value) {
+  $all: (operand, value) =>
+    _.every(value, obj1 => _.some(operand, obj2 => objectsAreEqual(obj1, obj2))),
+  $relatedTo: (operand, value) => {
     const object = value.object;
     const className = object.className;
     const id = object.objectId;
@@ -349,11 +329,10 @@ const QUERY_OPERATORS = {
         return results.concat(matches);
       }, []);
     } else {
-      return objectsAreEqual(relations, this);
+      return objectsAreEqual(relations, operand);
     }
     return undefined;
   },
-  /* eslint-enable */
 };
 
 function evaluateObject(object, whereParams, key) {
@@ -372,27 +351,26 @@ function evaluateObject(object, whereParams, key) {
   if (typeof whereParams === 'object') {
     // Handle objects that actually represent scalar values
     if (isPointer(whereParams) || isDate(whereParams)) {
-      return QUERY_OPERATORS.$eq.apply(object[key], [whereParams]);
+      return QUERY_OPERATORS.$eq.apply(null, [object[key], whereParams]);
     }
 
     if (key in QUERY_OPERATORS) {
-      return QUERY_OPERATORS[key].apply(object, [whereParams]);
+      return QUERY_OPERATORS[key].apply(null, [object, whereParams]);
     }
 
     // Process each key in where clause to determine if we have a match
     return _.reduce(whereParams, (matches, value, constraint) => {
       const keyValue = deserializeQueryParam(object[key]);
       const param = deserializeQueryParam(value);
-
       // Constraint can take the form form of a query operator OR an equality match
       if (constraint in QUERY_OPERATORS) {  // { age: {$lt: 30} }
-        return matches && QUERY_OPERATORS[constraint].apply(keyValue, [param]);
+        return matches && QUERY_OPERATORS[constraint].apply(null, [keyValue, param]);
       }                               // { age: 30 }
-      return matches && QUERY_OPERATORS.$eq.apply(keyValue[constraint], [param]);
+      return matches && QUERY_OPERATORS.$eq.apply(null, [keyValue[constraint], param]);
     }, true);
   }
 
-  return QUERY_OPERATORS.$eq.apply(object[key], [whereParams]);
+  return QUERY_OPERATORS.$eq.apply(null, [object[key], whereParams]);
 }
 
 
