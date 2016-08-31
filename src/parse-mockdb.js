@@ -1,3 +1,5 @@
+'use strict';
+
 const Parse = require('parse-shim');
 const _ = require('lodash');
 
@@ -13,7 +15,7 @@ let hooks = {};
 const masks = {};
 
 let indirect = null;
-const outOfBandResults = null;
+let outOfBandResults = null;
 
 let defaultController = null;
 let mocked = false;
@@ -54,7 +56,8 @@ function deserializeQueryParam(param) {
  */
 function objectsAreEqual(obj1, obj2) {
   // scalar values (including null/undefined)
-  if (obj1 === obj2) {
+  // eslint-disable-next-line eqeqeq
+  if (obj1 == obj2) {
     return true;
   }
 
@@ -109,19 +112,20 @@ const MASKED_UPDATE_OPS = new Set(['AddRelation', 'RemoveRelation']);
  *    value - operator value, i.e. `{__op: "Increment", amount: 1}`
  */
 const UPDATE_OPERATORS = {
-  Increment: (key, value) => {
+  /* eslint-disable object-shorthand, func-names */
+  Increment: function(key, value) {
     if (this[key] === undefined) {
       this[key] = 0;
     }
     this[key] += value.amount;
   },
-  Add: (key, value) => {
+  Add: function(key, value) {
     ensureArray(this, key);
     value.objects.forEach(object => {
       this[key].push(object);
     });
   },
-  AddUnique: (key, value) => {
+  AddUnique: function(key, value) {
     ensureArray(this, key);
     const array = this[key];
     value.objects.forEach(object => {
@@ -130,32 +134,31 @@ const UPDATE_OPERATORS = {
       }
     });
   },
-  // moving to fat arrow may cause a problem on these because of
-  // use of this?
-  Remove: (key, value) => {
+  Remove: function(key, value) {
     ensureArray(this, key);
     const array = this[key];
     value.objects.forEach(object => {
       _.remove(array, item => objectsAreEqual(item, object));
     });
   },
-  Delete: (key) => {
+  Delete: function(key) {
     delete this[key];
   },
-  AddRelation: (key, value) => {
+  AddRelation: function(key, value) {
     ensureArray(this, key);
     const relation = this[key];
     value.objects.forEach(pointer => {
       relation.push(pointer);
     });
   },
-  RemoveRelation: (key, value) => {
+  RemoveRelation: function(key, value) {
     ensureArray(this, key);
     const relation = this[key];
     value.objects.forEach(item => {
       _.remove(relation, pointer => objectsAreEqual(pointer, item));
     });
   },
+  /* eslint-enable */
 };
 
 function getCollection(collection) {
@@ -225,7 +228,7 @@ function makeRequestObject(model, useMasterKey) {
 function extractOps(data) {
   const ops = {};
 
-  _.forIn(data, (key, attribute) => {
+  _.forIn(data, (attribute, key) => {
     if (isOp(attribute)) {
       ops[key] = attribute;
       delete data[key];
@@ -239,7 +242,7 @@ function extractOps(data) {
 // Throws on unknown update operator.
 function applyOps(data, ops, className) {
   debugPrint('OPS', ops);
-  _.forIn(ops, (key, value) => {
+  _.forIn(ops, (value, key) => {
     const operator = value.__op;
 
     if (operator in UPDATE_OPERATORS) {
@@ -266,64 +269,6 @@ const SPECIAL_CLASS_NAMES = {
 };
 
 /**
- * Operator functions assume binding to **value** on which query operator is to be applied.
- *
- * Params:
- *    value - operator value, i.e. the number 30 in `age: {$lt: 30}`
- */
-const QUERY_OPERATORS = {
-  $exists: value => !!this === value,
-  $in: values => _.some(values, (value) => objectsAreEqual(this, value)),
-  $nin: values => _.every(values, (value) => !objectsAreEqual(this, value)),
-  $eq: value => objectsAreEqual(this, value),
-  $ne: value => !objectsAreEqual(this, value),
-  $lt: value => this < value,
-  $lte: value => this <= value,
-  $gt: value => this > value,
-  $gte: value => this >= value,
-  $regex: value => {
-    // eslint-disable-next-line quotes
-    const regex = _.clone(value).replace(QUOTE_REGEXP, "");
-    return (new RegExp(regex).test(this));
-  },
-  $select: value => {
-    const foreignKey = value.key;
-    const query = value.query;
-    // eslint-disable-next-line no-use-before-define
-    const matches = recursivelyMatch(query.className, query.where);
-    const objectMatches = _.filter(matches, match => match[foreignKey] === this);
-    return objectMatches.length;
-  },
-  $inQuery: query => {
-    // eslint-disable-next-line no-use-before-define
-    const matches = recursivelyMatch(query.className, query.where);
-    return _.find(matches, match => this && match.objectId === this.objectId);
-  },
-  $all: value => _.every(value, obj1 => _.some(this, obj2 => objectsAreEqual(obj1, obj2))),
-  $relatedTo: value => {
-    const object = value.object;
-    const className = object.className;
-    const id = object.objectId;
-    const relatedKey = value.key;
-    const relations = getCollection(className)[id][relatedKey] || [];
-    // whoa, what is going on here? should make a unit test for this.
-    if (indirect) {
-      relations.reduce((results, relation) => {
-        // eslint-disable-next-line no-use-before-define
-        const matches = recursivelyMatch(relations[0].className, {
-          objectId: relation.objectId,
-        });
-        return results.concat(matches);
-      }, []);
-    } else {
-      return objectsAreEqual(relations, this);
-    }
-
-    return undefined;
-  },
-};
-
-/**
  * Given a class name and a where clause, returns DB matches by applying
  * the where clause (recursively if nested)
  */
@@ -335,6 +280,83 @@ function recursivelyMatch(className, where) {
   debugPrint('MATCHES', { matches });
   return _.cloneDeep(matches); // return copies instead of originals
 }
+
+/**
+ * Operator functions assume binding to **value** on which query operator is to be applied.
+ *
+ * Params:
+ *    value - operator value, i.e. the number 30 in `age: {$lt: 30}`
+ */
+const QUERY_OPERATORS = {
+  /* eslint-disable object-shorthand, func-names */
+  $exists: function(value) {
+    return !!this === value;
+  },
+  $in: function(values) {
+    return _.some(values, value => objectsAreEqual(this, value));
+  },
+  $nin: function(values) {
+    return _.every(values, value => !objectsAreEqual(this, value));
+  },
+  $eq: function(value) {
+    return objectsAreEqual(this, value);
+  },
+  $ne: function(value) {
+    return !objectsAreEqual(this, value);
+  },
+  $lt: function(value) {
+    return this < value;
+  },
+  $lte: function(value) {
+    return this <= value;
+  },
+  $gt: function(value) {
+    return this > value;
+  },
+  $gte: function(value) {
+    return this >= value;
+  },
+  $regex: function(value) {
+    const regex = _.clone(value).replace(QUOTE_REGEXP, '');
+    return (new RegExp(regex).test(this));
+  },
+  $select: function(value) {
+    const foreignKey = value.key;
+    const query = value.query;
+    const matches = recursivelyMatch(query.className, query.where);
+    const objectMatches = _.filter(matches, match => match[foreignKey] === this);
+    return objectMatches.length;
+  },
+  $inQuery: function(query) {
+    const matches = recursivelyMatch(query.className, query.where);
+    return _.find(matches, match => this && match.objectId === this.objectId);
+  },
+  $all: function(value) {
+    return _.every(value, obj1 => _.some(this, obj2 => objectsAreEqual(obj1, obj2)));
+  },
+  $relatedTo: function(value) {
+    const object = value.object;
+    const className = object.className;
+    const id = object.objectId;
+    const relatedKey = value.key;
+    const relations = getCollection(className)[id][relatedKey] || [];
+    // What is going on here?  nothing is returned here?
+    // TODO: could use a unit test to help document what's supposed to happen here
+    if (indirect) {
+      outOfBandResults = relations.reduce((results, relation) => {
+        // eslint-disable-next-line no-use-before-define
+        const matches = recursivelyMatch(relations[0].className, {
+          objectId: relation.objectId,
+        });
+        return results.concat(matches);
+      }, []);
+    } else {
+      return objectsAreEqual(relations, this);
+    }
+    return undefined;
+  },
+  /* eslint-enable */
+};
 
 function evaluateObject(object, whereParams, key) {
   const nestedKeys = key.split('.');
@@ -374,6 +396,7 @@ function evaluateObject(object, whereParams, key) {
 
   return QUERY_OPERATORS.$eq.apply(object[key], [whereParams]);
 }
+
 
 /**
  * Returns a function that filters query matches on a where clause

@@ -63,7 +63,8 @@
       "no-param-reassign": "off",
       "no-underscore-dangle": "off",
       "no-console": "off",
-      "new-cap": "off"
+      "new-cap": "off",
+      "strict": "off"
     }
   }
 }

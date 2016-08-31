@@ -1,3 +1,5 @@
+'use strict';
+
 const assert = require('assert');
 const ParseMockDB = require('../src/parse-mockdb');
 const Parse = require('parse/node');
@@ -538,7 +540,7 @@ describe('ParseMock', () => {
 
   it('should handle delete', () => {
     const item = new Item();
-    return item.save().then(() => Parse.Query(Item).first()
+    return item.save().then(() => new Parse.Query(Item).first()
       ).then((foundItem) => {
         assert(foundItem);
         return foundItem.destroy();
