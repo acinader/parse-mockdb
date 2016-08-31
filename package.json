@@ -45,7 +45,7 @@
   "eslintConfig": {
     "extends": "airbnb",
     "parserOptions": {
-      "ecmaVersion": 6
+      "ecmaVersion": 5
     },
     "env": {
       "node": true,
@@ -56,7 +56,8 @@
       "no-underscore-dangle": "off",
       "no-console": "off",
       "new-cap": "off",
-      "strict": "off"
+      "strict": "off",
+      "prefer-rest-params": "off"
     }
   }
 }

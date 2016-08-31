@@ -432,7 +432,9 @@ function handleBatchRequest(unused1, unused2, data) {
       .then(result => Parse.Promise.as({ success: result.response }));
   });
 
-  return Parse.Promise.when.apply(null, getResults).then((...args) => respond(200, args));
+  return Parse.Promise.when.apply(null, getResults).then(function theResults() {
+    return respond(200, arguments);
+  });
 }
 
 /**
