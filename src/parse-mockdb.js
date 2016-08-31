@@ -105,9 +105,10 @@ function ensureArray(object, key) {
 const MASKED_UPDATE_OPS = new Set(['AddRelation', 'RemoveRelation']);
 
 /**
- * Operator functions assume binding to **object** on which update operator is to be applied.
+ * Update Operators.
  *
  * Params:
+ *    object - object on which to operate
  *    key   - value to be modified in bound object.
  *    value - operator value, i.e. `{__op: "Increment", amount: 1}`
  */
@@ -280,9 +281,10 @@ function recursivelyMatch(className, where) {
 }
 
 /**
- * Operator functions assume binding to **value** on which query operator is to be applied.
+ * Operators for queries
  *
  * Params:
+ *    operand - the value on which the query operator is applied
  *    value - operator value, i.e. the number 30 in `age: {$lt: 30}`
  */
 const QUERY_OPERATORS = {
