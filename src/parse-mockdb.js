@@ -112,53 +112,51 @@ const MASKED_UPDATE_OPS = new Set(['AddRelation', 'RemoveRelation']);
  *    value - operator value, i.e. `{__op: "Increment", amount: 1}`
  */
 const UPDATE_OPERATORS = {
-  /* eslint-disable object-shorthand, func-names */
-  Increment: function(key, value) {
-    if (this[key] === undefined) {
-      this[key] = 0;
+  Increment: (object, key, value) => {
+    if (object[key] === undefined) {
+      object[key] = 0;
     }
-    this[key] += value.amount;
+    object[key] += value.amount;
   },
-  Add: function(key, value) {
-    ensureArray(this, key);
-    value.objects.forEach(object => {
-      this[key].push(object);
+  Add: (object, key, value) => {
+    ensureArray(object, key);
+    value.objects.forEach(el => {
+      object[key].push(el);
     });
   },
-  AddUnique: function(key, value) {
-    ensureArray(this, key);
-    const array = this[key];
-    value.objects.forEach(object => {
-      if (array.indexOf(object) === -1) {
-        array.push(object);
+  AddUnique: (object, key, value) => {
+    ensureArray(object, key);
+    const array = object[key];
+    value.objects.forEach(el => {
+      if (array.indexOf(el) === -1) {
+        array.push(el);
       }
     });
   },
-  Remove: function(key, value) {
-    ensureArray(this, key);
-    const array = this[key];
-    value.objects.forEach(object => {
-      _.remove(array, item => objectsAreEqual(item, object));
+  Remove: (object, key, value) => {
+    ensureArray(object, key);
+    const array = object[key];
+    value.objects.forEach(el => {
+      _.remove(array, item => objectsAreEqual(item, el));
     });
   },
-  Delete: function(key) {
-    delete this[key];
+  Delete: (object, key) => {
+    delete object[key];
   },
-  AddRelation: function(key, value) {
-    ensureArray(this, key);
-    const relation = this[key];
+  AddRelation: (object, key, value) => {
+    ensureArray(object, key);
+    const relation = object[key];
     value.objects.forEach(pointer => {
       relation.push(pointer);
     });
   },
-  RemoveRelation: function(key, value) {
-    ensureArray(this, key);
-    const relation = this[key];
+  RemoveRelation: (object, key, value) => {
+    ensureArray(object, key);
+    const relation = object[key];
     value.objects.forEach(item => {
       _.remove(relation, pointer => objectsAreEqual(pointer, item));
     });
   },
-  /* eslint-enable */
 };
 
 function getCollection(collection) {
@@ -246,7 +244,7 @@ function applyOps(data, ops, className) {
     const operator = value.__op;
 
     if (operator in UPDATE_OPERATORS) {
-      UPDATE_OPERATORS[operator].bind(data)(key, value, className);
+      UPDATE_OPERATORS[operator](data, key, value, className);
     } else {
       throw new Error(`Unknown update operator: ${key}`);
     }
